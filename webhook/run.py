@@ -7,12 +7,12 @@ from telegram.ext import Updater
 app = Flask(__name__)
 
 global bot
-global data_dict
+global port
 
 bot = None
-data_dict = None
+port = None
 
-@app.route('/hook', methods=['POST'])
+@app.route('/' + port, methods=['GET', 'POST'])
 def webhook_handler():
     if request.method == "POST":
         # retrieve the message in JSON and then transform it to Telegram object
@@ -30,14 +30,13 @@ def webhook_handler():
 
 def set_webhook(token, port, appname):
     updater = Updater(token)
-    # add handlers
-    updater.start_webhook(listen="0.0.0.0", port=port, url_path='hook' + token)
-    updater.bot.set_webhook("https://{}.herokuapp.com/hook/".format(appname) + token)
+    # updater.start_webhook(listen="0.0.0.0", port=port, url_path='hook' + token)
+    updater.bot.set_webhook("https://{}.herokuapp.com/".format(appname) + token)
     updater.idle()
 
-@app.route('/')
-def index():
-    return '.'
+# @app.route('/')
+# def index():
+#     return '.'
 
 def main(data_dict):
     token = data_dict['token']
