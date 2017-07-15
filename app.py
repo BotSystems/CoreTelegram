@@ -5,6 +5,7 @@ from os.path import join, dirname
 from longpoling.run import main as run_lognpooling
 from webhook.run import main as run_webhook
 from dotenv import load_dotenv
+import sys
 
 app = Flask(__name__)
 
@@ -22,6 +23,7 @@ def landing():
     return 'ok'
 
 if __name__ == '__main__':
+    sys.exit()
     # Prepare data
     dotenv_path = join(dirname(__file__), '.env')
     load_dotenv(dotenv_path)
