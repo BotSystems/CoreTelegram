@@ -7,11 +7,11 @@ from webhook.run import main as run_webhook
 from dotenv import load_dotenv
 import sys
 
-app = Flask(__name__)
+# app = Flask(__name__)
 
-@app.route("/", methods=['GET', 'POST'])
-def landing():
-    return 'ok'
+# @app.route("/", methods=['GET', 'POST'])
+# def landing():
+#     return 'ok'
 
 if __name__ == '__main__':
     # Prepare data
