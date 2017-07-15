@@ -31,4 +31,4 @@ def main(data_dict):
     debug = data_dict['debug']
     # set_webhook(token, int(port), appname)
     bot = telegram.Bot(token=token)
-    app.run(host='0.0.0.0', port=int(port), debug=debug)
+    # app.run(host='0.0.0.0', port=int(port), debug=debug)
