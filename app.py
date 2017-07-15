@@ -2,8 +2,8 @@ from flask import Flask
 from telegram.ext import Updater
 import os
 from os.path import join, dirname
-from longpoling.run import main as run_lognpooling
-from webhook.run import main as run_webhook
+
+
 from dotenv import load_dotenv
 import sys
 
@@ -20,12 +20,14 @@ if __name__ == '__main__':
 
     # Run longpooling mode
     if os.getenv('SCHEMA') == 'longpooling':
+        from longpoling.run import main as run_lognpooling
         data = {
             'token': os.getenv('TOKEN', 'NO-TOKEN')
         }
         run_lognpooling(data)
     # Run webhook mode
     elif os.getenv('SCHEMA') == 'webhook':
+        from webhook.run import main as run_webhook
         data = {
             'token': os.getenv('TOKEN'),
             'appname': os.getenv('APPNAME'),
