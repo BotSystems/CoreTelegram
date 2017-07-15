@@ -32,7 +32,7 @@ def set_webhook(token, port, appname):
     updater = Updater(token)
     # add handlers
     updater.start_webhook(listen="0.0.0.0", port=port, url_path=token)
-    updater.bot.set_webhook("https://{}.herokuapp.com/".format(appname) + token)
+    updater.bot.set_webhook("https://{}.herokuapp.com/hook".format(appname) + token)
     updater.idle()
 
 @app.route('/')

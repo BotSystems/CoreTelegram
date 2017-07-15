@@ -14,63 +14,36 @@ import sys
 
 
 
-# sys.exit()
-# Prepare data
-dotenv_path = join(dirname(__file__), '.env')
-load_dotenv(dotenv_path)
-
-# Run longpooling mode
-if os.getenv('SCHEMA') == 'longpooling':
-    data = {
-        'token': os.getenv('TOKEN', 'NO-TOKEN')
-    }
-    run_lognpooling(data)
-# Run webhook mode
-elif os.getenv('SCHEMA') == 'webhook':
-    data = {
-        'token': os.getenv('TOKEN'),
-        'appname': os.getenv('APPNAME'),
-        'port': os.getenv('PORT'),
-        'debug': os.getenv('DEBUG')
-    }
-    run_webhook(data)
-else:
-    raise Exception('ALARMA! SCHEMA NOT VALID!')
 
 
+app = Flask(__name__)
 
+@app.route("/", methods=['GET', 'POST'])
+def landing():
+    return 'ok'
 
+if __name__ == '__main__':
+    sys.exit()
+    # Prepare data
+    dotenv_path = join(dirname(__file__), '.env')
+    load_dotenv(dotenv_path)
 
-
-
-# app = Flask(__name__)
-
-# @app.route("/", methods=['GET', 'POST'])
-# def landing():
-#     return 'ok'
-
-# if __name__ == '__main__':
-#     sys.exit()
-#     # Prepare data
-#     dotenv_path = join(dirname(__file__), '.env')
-#     load_dotenv(dotenv_path)
-
-#     # Run longpooling mode
-#     if os.getenv('SCHEMA') == 'longpooling':
-#         data = {
-#             'token': os.getenv('TOKEN', 'NO-TOKEN')
-#         }
-#         run_lognpooling(data)
-#     # Run webhook mode
-#     elif os.getenv('SCHEMA') == 'webhook':
-#         data = {
-#             'token': os.getenv('TOKEN'),
-#             'appname': os.getenv('APPNAME'),
-#             'port': os.getenv('PORT'),
-#             'debug': os.getenv('DEBUG')
-#         }
-#         run_webhook(data)
-#     else:
-#         raise Exception('ALARMA! SCHEMA NOT VALID!')
+    # Run longpooling mode
+    if os.getenv('SCHEMA') == 'longpooling':
+        data = {
+            'token': os.getenv('TOKEN', 'NO-TOKEN')
+        }
+        run_lognpooling(data)
+    # Run webhook mode
+    elif os.getenv('SCHEMA') == 'webhook':
+        data = {
+            'token': os.getenv('TOKEN'),
+            'appname': os.getenv('APPNAME'),
+            'port': os.getenv('PORT'),
+            'debug': os.getenv('DEBUG')
+        }
+        run_webhook(data)
+    else:
+        raise Exception('ALARMA! SCHEMA NOT VALID!')
 
 
