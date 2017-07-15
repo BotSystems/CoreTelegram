@@ -3,8 +3,9 @@ import telegram
 from flask import Flask, request
 from telegram.ext import Updater
 import os
+from app import app
 
-app = Flask(__name__)
+# app = Flask(__name__)
 
 global bot
 bot = None
