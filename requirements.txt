@@ -2,3 +2,4 @@ Flask==0.12.2
 gunicorn
 gevent
 python-telegram-bot
+python-dotenv
