@@ -13,6 +13,12 @@ def hello():
     return "{}:{}:{}:{}".format(port, debug, appname, token)
 
 if __name__ == '__main__':
+    schema = os.environ.get('SCHEMA')
+    if schema not in ('longpooling', 'webhoos'):
+        raise Exception('ALARMA')
+
+
+
     port = int(os.environ.get('PORT', 5000))
     debug = bool(os.environ.get('DEBUG', True))
     appname = os.environ.get('APPNAME', 'NO-APP-NAME')
@@ -24,4 +30,3 @@ if __name__ == '__main__':
     updater.idle()
 
     app.run(host='0.0.0.0', port=port, debug=debug)
-
