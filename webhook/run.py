@@ -19,10 +19,10 @@ def webhook_handler():
         bot.sendMessage(chat_id=chat_id, text=text)
     return 'ok'
 
-def set_webhook(token, port, appname):
-    updater = Updater(token)
-    updater.bot.set_webhook("https://{}.herokuapp.com/".format(appname) + token)
-    updater.idle()
+# def set_webhook(token, port, appname):
+#     updater = Updater(token)
+#     updater.bot.set_webhook("https://{}.herokuapp.com/".format(appname) + token)
+#     updater.idle()
 
 def main(data_dict):
     token = data_dict['token']
@@ -31,4 +31,4 @@ def main(data_dict):
     debug = data_dict['debug']
     # set_webhook(token, int(port), appname)
     bot = telegram.Bot(token=token)
-    app.run(host='0.0.0.0', port=int(port), debug=debug)
+    # app.run(host='0.0.0.0', port=int(port), debug=debug)
