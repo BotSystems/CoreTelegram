@@ -6,15 +6,15 @@ from longpoling.run import main as run_lognpooling
 from webhook.run import main as run_webhook
 from dotenv import load_dotenv
 
-app = Flask(__name__)
+# app = Flask(__name__)
 
-@app.route("/", methods=['GET', 'POST'])
-def hello():
-    port = int(os.environ.get('PORT', 5000))
-    debug = bool(os.environ.get('DEBUG', True))
-    appname = os.environ.get('APPNAME', 'NO-APP-NAME')
-    token = os.environ.get('TOKEN', 'NO-TOKEN')
-    return "{}:{}:{}:{}".format(port, debug, appname, token)
+# @app.route("/", methods=['GET', 'POST'])
+# def hello():
+#     port = int(os.environ.get('PORT', 5000))
+#     debug = bool(os.environ.get('DEBUG', True))
+#     appname = os.environ.get('APPNAME', 'NO-APP-NAME')
+#     token = os.environ.get('TOKEN', 'NO-TOKEN')
+#     return "{}:{}:{}:{}".format(port, debug, appname, token)
 
 if __name__ == '__main__':
     # Prepare data
