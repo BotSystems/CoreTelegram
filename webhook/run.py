@@ -41,10 +41,12 @@ def index():
 
 def main(data_dict):
     token = data_dict['token']
-    appname = data_dict['appmame']
+    appname = data_dict['appname']
     port = data_dict['port']
     debug = data_dict['debug']
 
-    set_webhook(token, port, appname)
+    # print(type(port))
+
+    set_webhook(token, int(port), appname)
     bot = telegram.Bot(token=token)
     app.run(host='0.0.0.0', port=port, debug=debug)
