@@ -23,7 +23,6 @@ def landing():
     return 'ok'
 
 if __name__ == '__main__':
-    sys.exit()
     # Prepare data
     dotenv_path = join(dirname(__file__), '.env')
     load_dotenv(dotenv_path)
