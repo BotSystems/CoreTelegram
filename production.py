@@ -4,20 +4,23 @@ from flask import Flask, request
 from telegram.ext import Updater
 import os
 from app import app
+from dotenv import load_dotenv
+import os
+from os.path import join, dirname
 
-# app = Flask(__name__)
+app = Flask(__name__)
 
 global bot
 bot = None
 
-@app.route('/' + os.getenv('TOKEN', 'qwerty'), methods=['GET', 'POST'])
+@app.route('/' + os.getenv('TOKEN'), methods=['GET', 'POST'])
 def webhook_handler():
     if request.method == "POST":
         update = telegram.Update.de_json(request.get_json(force=True))
         chat_id = update.message.chat.id
         text = update.message.text.encode('utf-8')
         bot.sendMessage(chat_id=chat_id, text=text)
-    return 'ok'
+    return 'ok!'
 
 # def set_webhook(token, port, appname):
 #     updater = Updater(token)
@@ -29,6 +32,19 @@ def main(data_dict):
     appname = data_dict['appname']
     port = data_dict['port']
     debug = data_dict['debug']
-    # set_webhook(token, int(port), appname)
     bot = telegram.Bot(token=token)
-    # app.run(host='0.0.0.0', port=int(port), debug=debug)
+    app.run(host='0.0.0.0', port=int(port), debug=debug)
+    
+
+
+if __name__ == '__main__':    # Prepare data
+    # dotenv_path = join(dirname(__file__), '.env.bleat')
+    # load_dotenv(dotenv_path)
+
+    data = {
+        'token': os.getenv('TOKEN'),
+        'appname': os.getenv('APPNAME'),
+        'port': os.getenv('PORT'),
+        'debug': os.getenv('DEBUG')
+    }
+    main(data)

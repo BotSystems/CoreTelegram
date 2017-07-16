@@ -8,14 +8,15 @@ import logging
 import telegram
 from telegram.error import NetworkError, Unauthorized
 from time import sleep
-
+from dotenv import load_dotenv
+import os
+from os.path import join, dirname
 
 update_id = None
 
 def main(data_dict):
     global update_id
     # Telegram Bot Authorization Token
-    print(data_dict)
     bot = telegram.Bot(data_dict['token'])
 
     # get the first pending update_id, this is so we can skip over it in case
@@ -46,3 +47,14 @@ def echo(bot):
         if update.message:  # your bot can receive updates without messages
             # Reply to the message
             update.message.reply_text(update.message.text)
+
+
+if __name__ == '__main__':
+    # Prepare data
+    dotenv_path = join(dirname(__file__), '.env.bleat')
+    load_dotenv(dotenv_path)
+
+    data = {
+        'token': os.getenv('TOKEN', 'NO-TOKEN')
+    }
+    main(data)
