@@ -3,7 +3,7 @@ import telegram
 from flask import Flask, request
 from telegram.ext import Updater
 import os
-from app import app
+# from app import app
 from dotenv import load_dotenv
 import os
 from os.path import join, dirname
@@ -13,7 +13,7 @@ app = Flask(__name__)
 global bot
 bot = None
 
-@app.route('/' + os.getenv('TOKEN'), methods=['GET', 'POST'])
+@app.route('/' + os.getenv('TOKEN', ''), methods=['GET', 'POST'])
 def webhook_handler():
     if request.method == "POST":
         update = telegram.Update.de_json(request.get_json(force=True))
@@ -37,7 +37,8 @@ def main(data_dict):
     
 
 
-if __name__ == '__main__':    # Prepare data
+if __name__ == '__main__':
+    # Prepare data
     # dotenv_path = join(dirname(__file__), '.env.bleat')
     # load_dotenv(dotenv_path)
 
