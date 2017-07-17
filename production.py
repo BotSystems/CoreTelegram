@@ -21,7 +21,7 @@ def landing():
 @app.route('/' + os.getenv('TOKEN'), methods=['GET', 'POST'])
 def webhook_handler():
     if request.method == "POST":
-        update = telegram.Update.de_json(request.get_json(force=True))
+        update = telegram.Update.de_json(request.get_json(force=True), bot)
         dispatcher.process_update(update)
         # chat_id = update.message.chat.id
         # text = update.message.text.encode('utf-8')
