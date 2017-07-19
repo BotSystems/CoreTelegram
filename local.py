@@ -1,18 +1,14 @@
 # -*- coding: utf-8 -*-
-import logging
-import telegram
-from telegram.error import NetworkError, Unauthorized
-from time import sleep
-from dotenv import load_dotenv
 import os
 from os.path import join, dirname
+
+from dotenv import load_dotenv
+from telegram.ext import Updater, ConversationHandler
+
 from handlers.handler import init_handlers
-from telegram.ext import Updater
 
-
-dotenv_path = join(dirname(__file__), '.env.bleat')
+dotenv_path = join(dirname(__file__), '.env.local')
 load_dotenv(dotenv_path)
-
 
 if __name__ == '__main__':
     token = os.getenv('TOKEN')
