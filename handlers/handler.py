@@ -1,17 +1,10 @@
 # -*- coding: utf-8 -*-
 from telegram.ext import MessageHandler
-from models import Chanel
+
+from handlers.decorators import botan_decorator, save_chanel_decorator
 
 
-def save_chanel_decorator(fn):
-    def wrapper(bot, update):
-        print('SAVE CHANEL')
-        Chanel.get_or_create(chanel_id=update.message.chat.id, defaults={'chanel_id': update.message.chat.id})
-        return fn(bot, update)
-
-    return wrapper
-
-
+@botan_decorator('echo_action')
 @save_chanel_decorator
 def handler_echo(bot, update):
     print('HANDLER ECHO!')
