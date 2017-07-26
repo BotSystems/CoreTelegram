@@ -40,16 +40,23 @@ def render_shop(shop):
     cashback_rate_type = None
     cashback_type_floated = None
 
-    if isinstance(shop['cashback_rate'], list):
+    if isinstance(shop['cashback_rate'], dict):
         cashback_rate_value = shop['cashback_rate']['value'] if 'value' in shop['cashback_rate'] else None
         cashback_rate_type = shop['cashback_rate']['rate_type'] if 'rate_type' in shop['cashback_rate'] else None
         cashback_type_floated = shop['cashback_rate']['is_floated'] if 'is_floated' in shop['cashback_rate'] else None
 
-    template = '[{}]({})\n[Перейти в магазин]({})'
-    data = [name, logo, url]
-    if all([cashback_rate_value, cashback_rate_type, cashback_type_floated]):
-        template = '[{}]({})\nКэшбэк: {}{}{}\n[Перейти в магазин]({})'
-        data = [name, logo, cashback_type_floated, cashback_rate_value, cashback_rate_type, url]
+    if cashback_rate_type is not None:
+        cashback_rate_type = '%' if cashback_rate_type == 'percent' else cashback_rate_type
+
+    if cashback_type_floated is not None:
+        cashback_type_floated = 'до' if cashback_type_floated is True else ''
+
+    template = '[{}]({})\nКэшбэк: {} {}{}\n[Перейти в магазин]({})'
+    data = [name, logo, cashback_type_floated, cashback_rate_value, cashback_rate_type, url]
+
+    if all([(cashback_setting is None) for cashback_setting in [cashback_rate_value, cashback_rate_type, cashback_type_floated]]):
+        template = '[{}]({})\n[Перейти в магазин]({})'
+        data = [name, logo, url]
 
     return template.format(*data)
 
@@ -57,5 +64,5 @@ def render_shop(shop):
 def find_shop(searching_shop, shop_list):
     shops = (item for it in shop_list for item in it)
     for shop in shops:
-        if searching_shop.lower() in map(lambda shop_name: shop_name.lower(), shop['aliases']):
+        if searching_shop.lower() in [shop_alias.lower() for shop_alias in  shop['aliases']]:
             return shop
