@@ -1,7 +1,7 @@
 import os
 from os.path import join, dirname
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
 from peewee import PostgresqlDatabase, Model, IntegerField
 
 if os.path.isfile('.env.settings'):
