@@ -41,8 +41,8 @@ def get_tokens(storage):
 
 
 def token_updater(fn):
-    def fn_wrapper(storage, limit, offset):
-        result = fn(storage, limit, offset)
+    def fn_wrapper(storage, *args, **kwargs):
+        result = fn(storage, *args, **kwargs)
         if (result.status_code == 200):
             return result
         credentials = {
@@ -51,6 +51,6 @@ def token_updater(fn):
             'client_id': AUTH_CLIENT_ID
         }
         _save_tokens(storage, _refresh_tokens(**credentials))
-        return fn(storage, limit, offset)
+        return fn(storage, *args, **kwargs)
 
     return fn_wrapper

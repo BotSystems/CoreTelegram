@@ -4,28 +4,12 @@ import os
 import urllib.parse
 
 import requests
+import re
 
 from handlers.letyshops.api.relogin.token_helpers import token_updater
 
-SHOPS_ROUTE = 'shops?page[offset]={}&page[limit]={}'
-
-
-@token_updater
-def get_shops(storage, limit, offset):
-    url = urllib.parse.urljoin(os.getenv('API_URL'), SHOPS_ROUTE).format(offset, limit)
-    access_token = storage['access_token']
-    return requests.get(url, headers={'Authorization': 'Bearer ' + access_token}, verify=False)
-
-
-def get_all_shops(storage):
-    limit, offset = 100, 0
-    while True:
-        result = json.loads(get_shops(storage, limit, offset).content.decode("utf-8"))['data']
-        if result:
-            offset = offset + limit
-            yield result
-        else:
-            break
+GET_ALL_SHOPS_ROUTE = 'shops?page[offset]={}&page[limit]={}'
+GET_SHOP_INFO_BY_ID_ROUTE = 'shops/{}'
 
 
 def render_shop(shop):
@@ -34,7 +18,10 @@ def render_shop(shop):
 
     name = shop['name']
     logo = shop['image']
-    url = shop['go_link']
+    url = shop['url']
+    cashback_waiting_days = shop['cashback_waiting_days'] if shop.get('cashback_waiting_days',
+                                                                      '').isdigit() else 'Не указано'
+    description = shop['description'] if shop['description'] is not None else 'Отсутствует'
 
     cashback_rate_value = None
     cashback_rate_type = None
@@ -51,18 +38,47 @@ def render_shop(shop):
     if cashback_type_floated is not None:
         cashback_type_floated = 'до' if cashback_type_floated is True else ''
 
-    template = '[{}]({})\nКэшбэк: {} {}{}\n[Перейти в магазин]({})'
-    data = [name, logo, cashback_type_floated, cashback_rate_value, cashback_rate_type, url]
+    template = '[{}]({})\n*Кэшбэк:* {} {}{}\n*Доп. инфо:* {}\n*Сколько дней ждать кэшбэк:* {}\n[Перейти в магазин]({})'
+    data = [name, logo, cashback_type_floated, cashback_rate_value, cashback_rate_type,
+            re.sub(r'<[^>]*?>', '', description), cashback_waiting_days, url]
 
-    if all([(cashback_setting is None) for cashback_setting in [cashback_rate_value, cashback_rate_type, cashback_type_floated]]):
-        template = '[{}]({})\n[Перейти в магазин]({})'
-        data = [name, logo, url]
+    if all([(cashback_setting is None) for cashback_setting in
+            [cashback_rate_value, cashback_rate_type, cashback_type_floated]]):
+        template = '[{}]({})\n*Доп. инфо:* {}\n*Сколько дней ждать кэшбэк:* {}\n[Перейти в магазин]({})'
+        data = [name, logo, re.sub(r'<[^>]*?>', '', description), cashback_waiting_days, url]
 
     return template.format(*data)
 
 
-def find_shop(searching_shop, shop_list):
+@token_updater
+def get_shop_by_id(storage, *args, **kwargs):
+    if (kwargs.get('shop_id')):
+        url = urllib.parse.urljoin(os.getenv('API_URL'), GET_SHOP_INFO_BY_ID_ROUTE).format(kwargs['shop_id'])
+        access_token = storage['access_token']
+        return requests.get(url, headers={'Authorization': 'Bearer ' + access_token}, verify=False)
+    return None
+
+
+def get_all_shops(storage):
+    @token_updater
+    def get_shops(storage, *args, **kwargs):
+        limit, offset = kwargs['limit'], kwargs['offset']
+        url = urllib.parse.urljoin(os.getenv('API_URL'), GET_ALL_SHOPS_ROUTE).format(offset, limit)
+        access_token = storage['access_token']
+        return requests.get(url, headers={'Authorization': 'Bearer ' + access_token}, verify=False)
+
+    limit, offset = 100, 0
+    while True:
+        result = json.loads(get_shops(storage, limit=limit, offset=offset).content.decode("utf-8"))['data']
+        if result:
+            offset = offset + limit
+            yield result
+        else:
+            break
+
+
+def find_shop_in_shops(searching_shop, shop_list):
     shops = (item for it in shop_list for item in it)
     for shop in shops:
-        if searching_shop.lower() in [shop_alias.lower() for shop_alias in  shop['aliases']]:
+        if searching_shop.lower() in [shop_alias.lower() for shop_alias in shop['aliases']]:
             return shop
