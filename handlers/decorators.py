@@ -21,11 +21,12 @@ def botan_decorator(event_name):
         def wrapper(bot, update, *args, **kwargs):
             chat_id = update.message.chat_id
             message = update.message.text
-            try:
-                botan.track(BOTAN_TOKEN, chat_id, message, event_name)
-            except:
-                # TODO: add logger
-                pass
+            # try:
+            #     botan.track(BOTAN_TOKEN, chat_id, message, event_name)
+            # except Exception as e:
+            #     print(e)
+            #     # TODO: add logger
+            #     pass
             return fn(bot, update)
 
         return wrapper
