@@ -82,3 +82,7 @@ def find_shop_in_shops(searching_shop, shop_list):
     for shop in shops:
         if searching_shop.lower() in [shop_alias.lower() for shop_alias in shop['aliases']]:
             return shop
+
+
+def top_shops(shop_list):
+    print('TOP SHOPS')
