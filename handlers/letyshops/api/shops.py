@@ -6,6 +6,8 @@ import urllib.parse
 import requests
 import re
 
+from requests import Response
+
 from handlers.letyshops.api.relogin.token_helpers import token_updater
 
 GET_ALL_SHOPS_ROUTE = 'shops?page[offset]={}&page[limit]={}'
@@ -51,7 +53,7 @@ def render_shop(shop):
 
 
 @token_updater
-def get_shop_by_id(storage, *args, **kwargs):
+def get_shop_by_id(storage, *args, **kwargs) -> Response:
     if (kwargs.get('shop_id')):
         url = urllib.parse.urljoin(os.getenv('API_URL'), GET_SHOP_INFO_BY_ID_ROUTE).format(kwargs['shop_id'])
         access_token = storage['access_token']
@@ -82,6 +84,17 @@ def find_shop_in_shops(searching_shop, shop_list):
     for shop in shops:
         if searching_shop.lower() in [shop_alias.lower() for shop_alias in shop['aliases']]:
             return shop
+
+
+def top_shop_filter(shop_chunks):
+    result = []
+
+    for chunk in shop_chunks:
+        top_shops_in_chunk = list(filter(lambda shop: shop['top'], chunk))
+        for shop in top_shops_in_chunk:
+            result.append(shop)
+    return result
+
 
 
 def top_shops(shop_list):
