@@ -7,7 +7,8 @@ from telegram import KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardButton, 
 
 from handlers.decorators import botan_decorator, save_chanel_decorator
 from handlers.letyshops.api.relogin.token_helpers import AUTH_TOKENS_STORAGE
-from handlers.letyshops.api.shops import render_shop, find_shop_in_shops, get_all_shops, get_shop_by_id, top_shop_filter
+from handlers.letyshops.api.shops import render_shop, find_shop_in_shops, get_all_shops, get_shop_by_id, \
+    top_shop_filter, try_to_get_shops_from_cache
 
 
 def build_keyboard():
@@ -24,8 +25,10 @@ def send_shop_info(bot, update):
         print('ТОП МАГАЗИНОВ')
         return send_top_shops(bot, update)
 
+    shops = try_to_get_shops_from_cache(AUTH_TOKENS_STORAGE)
+
     bot.send_message(chat_id=update.message.chat.id, text='Запрос принят, ищу...')
-    shop = find_shop_in_shops(str.strip(update.message.text), get_all_shops(AUTH_TOKENS_STORAGE))
+    shop = find_shop_in_shops(str.strip(update.message.text), shops)
     if shop is None:
         return bot.send_message(chat_id=update.message.chat.id, text='Нет ничего такого :(')
     # подгружаем данные по ID
@@ -46,7 +49,7 @@ def send_welcome(bot, update):
 
 
 def send_top_shops(bot, update):
-    shops_chunks = get_all_shops(AUTH_TOKENS_STORAGE)
+    shops_chunks = try_to_get_shops_from_cache(AUTH_TOKENS_STORAGE)
     top_shops = top_shop_filter(shops_chunks)
 
     top_shops = sorted(top_shops, key=lambda shop: shop['name'])

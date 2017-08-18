@@ -13,6 +13,8 @@ from handlers.letyshops.api.relogin.token_helpers import token_updater
 GET_ALL_SHOPS_ROUTE = 'shops?page[offset]={}&page[limit]={}'
 GET_SHOP_INFO_BY_ID_ROUTE = 'shops/{}'
 
+mini_cache = []
+
 
 def render_shop(shop):
     if shop is None:
@@ -62,6 +64,8 @@ def get_shop_by_id(storage, *args, **kwargs) -> Response:
 
 
 def get_all_shops(storage):
+    print('upload shops')
+
     @token_updater
     def get_shops(storage, *args, **kwargs):
         limit, offset = kwargs['limit'], kwargs['offset']
@@ -96,6 +100,18 @@ def top_shop_filter(shop_chunks):
     return result
 
 
-
 def top_shops(shop_list):
     print('TOP SHOPS')
+
+
+def try_to_get_shops_from_cache(storage):
+    if mini_cache:
+        return mini_cache
+
+    shops = get_all_shops(storage)
+    for shop in shops:
+        mini_cache.append(shop)
+
+    print(mini_cache)
+
+    return try_to_get_shops_from_cache(storage)
