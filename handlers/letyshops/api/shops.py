@@ -112,6 +112,4 @@ def try_to_get_shops_from_cache(storage):
     for shop in shops:
         mini_cache.append(shop)
 
-    print(mini_cache)
-
     return try_to_get_shops_from_cache(storage)
