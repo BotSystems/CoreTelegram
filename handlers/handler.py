@@ -12,8 +12,14 @@ from handlers.letyshops.api.shops import render_shop, find_shop_in_shops, get_al
 
 
 def build_keyboard():
-    button = InlineKeyboardButton('ТОП Магазинов', url='https://ya.ru')
-    return ReplyKeyboardMarkup([[button]], resize_keyboard=True)
+    # категории, Указать страну
+    buttons = [[KeyboardButton('ТОП Магазинов')], [KeyboardButton('Категории')], [KeyboardButton('Указать страну')]]
+    return ReplyKeyboardMarkup(buttons, resize_keyboard=True)
+
+def in_development_message(bot, update):
+    message = 'In development...'
+    print('dev')
+    bot.send_message(chat_id=update.message.chat.id, text=message)
 
 
 # @botan_decorator('get_shop_info')
@@ -21,9 +27,11 @@ def build_keyboard():
 def send_shop_info(bot, update):
     # return bot.send_message(chat_id=update.message.chat.id, text='A', parse_mode='Markdown',
     #                         reply_markup=build_keyboard())
+    print(update.message.text.lower())
     if update.message.text.lower() == 'топ магазинов':
-        print('ТОП МАГАЗИНОВ')
         return send_top_shops(bot, update)
+    elif update.message.text.lower() in ('категории', 'указать страну'):
+        return in_development_message(bot, update)
 
     shops = try_to_get_shops_from_cache(AUTH_TOKENS_STORAGE)
 
