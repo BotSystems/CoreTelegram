@@ -7,6 +7,7 @@ import requests
 import re
 
 from requests import Response
+from telegram.ext import BaseFilter
 
 from handlers.letyshops.api.relogin.token_helpers import token_updater
 
@@ -113,3 +114,8 @@ def try_to_get_shops_from_cache(storage):
         mini_cache.append(shop)
 
     return try_to_get_shops_from_cache(storage)
+
+
+class TopShopsFilter(BaseFilter):
+    def filter(self, message):
+        return 'ТОП Магазинов' in message.text

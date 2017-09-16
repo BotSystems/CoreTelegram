@@ -1,38 +1,29 @@
 # -*- coding: utf-8 -*-
 import json
 
-from telegram.ext import MessageHandler, CommandHandler
-
 from telegram import KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import MessageHandler, CommandHandler, Filters
 
-from handlers.decorators import botan_decorator, save_chanel_decorator
+from handlers.decorators import save_chanel_decorator
+from handlers.letyshops.api.category import CategoryFilter
+from handlers.letyshops.api.country import CountryFilter, country_handler
 from handlers.letyshops.api.relogin.token_helpers import AUTH_TOKENS_STORAGE
-from handlers.letyshops.api.shops import render_shop, find_shop_in_shops, get_all_shops, get_shop_by_id, \
-    top_shop_filter, try_to_get_shops_from_cache
+from handlers.letyshops.api.shops import render_shop, find_shop_in_shops, get_shop_by_id, \
+    top_shop_filter, try_to_get_shops_from_cache, TopShopsFilter
 
 
 def build_keyboard():
-    # категории, Указать страну
     buttons = [[KeyboardButton('ТОП Магазинов')], [KeyboardButton('Категории')], [KeyboardButton('Указать страну')]]
     return ReplyKeyboardMarkup(buttons, resize_keyboard=True)
 
+
 def in_development_message(bot, update):
     message = 'In development...'
-    print('dev')
     bot.send_message(chat_id=update.message.chat.id, text=message)
 
 
-# @botan_decorator('get_shop_info')
 @save_chanel_decorator
 def send_shop_info(bot, update):
-    # return bot.send_message(chat_id=update.message.chat.id, text='A', parse_mode='Markdown',
-    #                         reply_markup=build_keyboard())
-    print(update.message.text.lower())
-    if update.message.text.lower() == 'топ магазинов':
-        return send_top_shops(bot, update)
-    elif update.message.text.lower() in ('категории', 'указать страну'):
-        return in_development_message(bot, update)
-
     shops = try_to_get_shops_from_cache(AUTH_TOKENS_STORAGE)
 
     bot.send_message(chat_id=update.message.chat.id, text='Запрос принят, ищу...')
@@ -77,5 +68,8 @@ def send_top_shops(bot, update):
 
 def init_handlers(dispatcher):
     dispatcher.add_handler(CommandHandler('start', send_welcome))
-    dispatcher.add_handler(MessageHandler(None, send_shop_info))
+    dispatcher.add_handler(MessageHandler(TopShopsFilter(), send_top_shops))
+    dispatcher.add_handler(MessageHandler(CategoryFilter(), in_development_message))
+    dispatcher.add_handler(country_handler)
+    dispatcher.add_handler(MessageHandler(Filters.text, send_shop_info))
     return dispatcher
