@@ -19,7 +19,8 @@ db = PostgresqlDatabase(os.getenv('DB_NAME'), **DATABASE_CREDENTIALS)
 
 
 def find_chanel_by_chat(chat):
-    return Chanel.get_or_create(chanel_id=chat.id, defaults={'chanel_id': chat.id})
+    chanel, _ = Chanel.get_or_create(chanel_id=chat.id, defaults={'chanel_id': chat.id})
+    return chanel
 
 
 class Chanel(Model):
