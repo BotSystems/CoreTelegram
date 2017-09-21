@@ -13,6 +13,7 @@ from handlers.letyshops.api.relogin.token_helpers import token_updater
 
 GET_ALL_SHOPS_ROUTE = 'shops?page[offset]={}&page[limit]={}'
 GET_SHOP_INFO_BY_ID_ROUTE = 'shops/{}'
+GET_ALL_SHOP_BY_CATEGORIES_ROUTE = 'shops?filter[category_ids]={}'
 
 mini_cache = []
 
@@ -63,6 +64,14 @@ def get_shop_by_id(storage, *args, **kwargs) -> Response:
         return requests.get(url, headers={'Authorization': 'Bearer ' + access_token}, verify=False)
     return None
 
+@token_updater
+def get_shop_by_category(storage, *args, **kwargs) -> Response:
+    if (kwargs.get('category_id')):
+        url = urllib.parse.urljoin(os.getenv('API_URL'), GET_ALL_SHOP_BY_CATEGORIES_ROUTE).format(kwargs['category_id'])
+        access_token = storage['access_token']
+        return requests.get(url, headers={'Authorization': 'Bearer ' + access_token}, verify=False)
+    return None
+
 
 def get_all_shops(storage):
     print('upload shops')
@@ -87,6 +96,7 @@ def get_all_shops(storage):
 def find_shop_in_shops(searching_shop, shop_list):
     shops = (item for it in shop_list for item in it)
     for shop in shops:
+        shop['aliases'].append(shop['name'].lower())
         if searching_shop.lower() in [shop_alias.lower() for shop_alias in shop['aliases']]:
             return shop
 

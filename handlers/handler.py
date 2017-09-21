@@ -2,14 +2,17 @@
 import json
 
 from telegram import KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import MessageHandler, CommandHandler, Filters
+from telegram.ext import MessageHandler, CommandHandler, Filters, CallbackQueryHandler
 
 from handlers.decorators import save_chanel_decorator
-from handlers.letyshops.api.category import CategoryFilter
-from handlers.letyshops.api.country import CountryFilter, country_handler
+from handlers.letyshops.api.category import CategoryFilter, category_handler, choice_category, show_shop
+from handlers.letyshops.api.country import CountryFilter, country_handler, save_country
 from handlers.letyshops.api.relogin.token_helpers import AUTH_TOKENS_STORAGE
 from handlers.letyshops.api.shops import render_shop, find_shop_in_shops, get_shop_by_id, \
     top_shop_filter, try_to_get_shops_from_cache, TopShopsFilter
+
+from handlers.letyshops.api.country import show_all as country_show_all
+from handlers.letyshops.api.category import show_all as category_show_all
 
 
 def build_keyboard():
@@ -23,7 +26,7 @@ def in_development_message(bot, update):
 
 
 @save_chanel_decorator
-def send_shop_info(bot, update):
+def find_shop_by_name(bot, update):
     shops = try_to_get_shops_from_cache(AUTH_TOKENS_STORAGE)
 
     bot.send_message(chat_id=update.message.chat.id, text='Запрос принят, ищу...')
@@ -66,10 +69,19 @@ def send_top_shops(bot, update):
     return bot.send_message(chat_id=update.message.chat.id, text='ТОП Магазинов:', reply_markup=markup)
 
 
+
 def init_handlers(dispatcher):
     dispatcher.add_handler(CommandHandler('start', send_welcome))
+
+    dispatcher.add_handler(MessageHandler(CountryFilter(), country_show_all))
+    dispatcher.add_handler(CallbackQueryHandler(save_country, False, False, 'set_country.*'))
+
+    dispatcher.add_handler(MessageHandler(CategoryFilter(), category_show_all))
+    dispatcher.add_handler(CallbackQueryHandler(choice_category, False, False, 'show_category.*'))
+    dispatcher.add_handler(CallbackQueryHandler(show_shop, False, False, 'show_shop_info.*'))
+
     dispatcher.add_handler(MessageHandler(TopShopsFilter(), send_top_shops))
-    dispatcher.add_handler(MessageHandler(CategoryFilter(), in_development_message))
-    dispatcher.add_handler(country_handler)
-    dispatcher.add_handler(MessageHandler(Filters.text, send_shop_info))
+
+    dispatcher.add_handler(MessageHandler(Filters.text, find_shop_by_name))
+
     return dispatcher

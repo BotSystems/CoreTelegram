@@ -4,16 +4,16 @@ from telegram.ext import Updater, CallbackQueryHandler, ConversationHandler, Mes
 from models import find_chanel_by_chat
 
 COUNTRIES = (
-    (u'Украина', 'UA'),
-    (u'Россия', 'RU'),
-    (u'Белоруссия', 'BY'),
-    (u'Казахстан', 'KZ'),
+    (u'Украина', 'set_country.ua'),
+    (u'Россия', 'set_country.ru'),
+    (u'Белоруссия', 'set_country.by'),
+    (u'Казахстан', 'set_country.kz'),
 )
 
 
-def build_keyboard(countries):
+def build_keyboard(country_list):
     countries = []
-    for (country, callback) in COUNTRIES:
+    for (country, callback) in country_list:
         country_keyboard = [InlineKeyboardButton(country, callback_data=callback)]
         countries.append(country_keyboard)
 
@@ -23,28 +23,25 @@ def build_keyboard(countries):
 def show_all(bot, update):
     reply_markup = InlineKeyboardMarkup(build_keyboard(COUNTRIES))
     update.message.reply_text(u"Выберите страну для поиска", reply_markup=reply_markup)
-    return 'SAVE_COUNTRY'
 
 
 def save_country(bot, update):
-    selected_country = update.callback_query.data or 'RU'
+    print(update)
+    selected_country = update.callback_query.data.split('.')[1] or 'ru'
 
     query = update.callback_query
 
     chanel = find_chanel_by_chat(query.message.chat)
     chanel.set_country(selected_country)
 
-    keyboard = [[InlineKeyboardButton(u"Ок", callback_data='_')]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
+    # keyboard = [[InlineKeyboardButton(u"Ок", callback_data='_')]]
+    # reply_markup = InlineKeyboardMarkup(keyboard)
 
-    bot.edit_message_text(
+    bot.sendMessage(
         chat_id=query.message.chat_id,
-        message_id=query.message.message_id,
-        text=u"Данные сохранены.",
-        reply_markup=reply_markup
+        text=u"Данные сохранены."
     )
 
-    return 'COMPLETE'
 
 
 def complete(bot, update):
