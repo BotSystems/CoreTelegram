@@ -12,7 +12,7 @@ from handlers.letyshops.api.relogin.token_helpers import AUTH_TOKENS_STORAGE
 from telegram.ext import BaseFilter, ConversationHandler, MessageHandler, CallbackQueryHandler
 
 from handlers.letyshops.api.relogin.token_helpers import token_updater
-from handlers.letyshops.api.shops import get_shop_by_category, get_shop_by_id, render_shop
+from handlers.letyshops.api.shops import get_shop_by_category, get_shop_by_id, render_shop, render_shop_answer
 
 GET_ALL_CATEGORIES_ROUTE = 'shop-categories'
 
@@ -64,8 +64,12 @@ def show_shop(bot, update):
 
     shop = get_shop_by_id(AUTH_TOKENS_STORAGE, shop_id = selected_shop_id)
     if (shop.status_code == 200):
-        shop_full_data = json.loads(shop.content.decode("utf-8"))['data']
-        return bot.send_message(chat_id=query.message.chat_id, text=render_shop(shop_full_data), parse_mode='Markdown')
+        shop_full_data_json = json.loads(shop.content.decode("utf-8"))['data']
+        render_shop_answer(bot, query.message.chat_id, shop_full_data_json)
+        # buttons = []
+        # buttons.append([InlineKeyboardButton('Перейти в магазин', url='http://example.com')])
+        # markup = InlineKeyboardMarkup(buttons, resize_keyboard=True)
+        # return bot.send_message(chat_id=query.message.chat_id, text=render_shop(shop_full_data), parse_mode='Markdown', reply_markup=markup)
 
 
 class CategoryFilter(BaseFilter):

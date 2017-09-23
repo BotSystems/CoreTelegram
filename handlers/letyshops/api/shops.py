@@ -7,6 +7,7 @@ import requests
 import re
 
 from requests import Response
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import BaseFilter
 
 from handlers.letyshops.api.relogin.token_helpers import token_updater
@@ -44,14 +45,14 @@ def render_shop(shop):
     if cashback_type_floated is not None:
         cashback_type_floated = 'до' if cashback_type_floated is True else ''
 
-    template = '[{}]({})\n*Кэшбэк:* {} {}{}\n*Доп. инфо:* {}\n*Сколько дней ждать кэшбэк:* {}\n[Перейти в магазин]({})'
+    template = '[{}]({})\n*Кэшбэк:* {} {}{}\n*Доп. инфо:* {}\n*Сколько дней ждать кэшбэк:* {}'
     data = [name, logo, cashback_type_floated, cashback_rate_value, cashback_rate_type,
-            re.sub(r'<[^>]*?>', '', description), cashback_waiting_days, url]
+            re.sub(r'<[^>]*?>', '', description), cashback_waiting_days]
 
     if all([(cashback_setting is None) for cashback_setting in
             [cashback_rate_value, cashback_rate_type, cashback_type_floated]]):
-        template = '[{}]({})\n*Доп. инфо:* {}\n*Сколько дней ждать кэшбэк:* {}\n[Перейти в магазин]({})'
-        data = [name, logo, re.sub(r'<[^>]*?>', '', description), cashback_waiting_days, url]
+        template = '[{}]({})\n*Доп. инфо:* {}\n*Сколько дней ждать кэшбэк:* {}'
+        data = [name, logo, re.sub(r'<[^>]*?>', '', description), cashback_waiting_days]
 
     return template.format(*data)
 
@@ -63,6 +64,7 @@ def get_shop_by_id(storage, *args, **kwargs) -> Response:
         access_token = storage['access_token']
         return requests.get(url, headers={'Authorization': 'Bearer ' + access_token}, verify=False)
     return None
+
 
 @token_updater
 def get_shop_by_category(storage, *args, **kwargs) -> Response:
@@ -129,3 +131,11 @@ def try_to_get_shops_from_cache(storage):
 class TopShopsFilter(BaseFilter):
     def filter(self, message):
         return 'ТОП Магазинов' in message.text
+
+
+def render_shop_answer(bot, chat_id, shop_data_json):
+    buttons = []
+    buttons.append([InlineKeyboardButton('Перейти в магазин', url=shop_data_json['url'])])
+    markup = InlineKeyboardMarkup(buttons, resize_keyboard=True)
+    return bot.send_message(chat_id=chat_id, text=render_shop(shop_data_json), parse_mode='Markdown',
+                            reply_markup=markup)

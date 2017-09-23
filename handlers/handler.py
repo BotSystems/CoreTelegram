@@ -9,7 +9,7 @@ from handlers.letyshops.api.category import CategoryFilter, category_handler, ch
 from handlers.letyshops.api.country import CountryFilter, country_handler, save_country
 from handlers.letyshops.api.relogin.token_helpers import AUTH_TOKENS_STORAGE
 from handlers.letyshops.api.shops import render_shop, find_shop_in_shops, get_shop_by_id, \
-    top_shop_filter, try_to_get_shops_from_cache, TopShopsFilter
+    top_shop_filter, try_to_get_shops_from_cache, TopShopsFilter, render_shop_answer
 
 from handlers.letyshops.api.country import show_all as country_show_all
 from handlers.letyshops.api.category import show_all as category_show_all
@@ -27,9 +27,9 @@ def in_development_message(bot, update):
 
 @save_chanel_decorator
 def find_shop_by_name(bot, update):
+    bot.send_message(chat_id=update.message.chat.id, text='Запрос принят, ищу...')
     shops = try_to_get_shops_from_cache(AUTH_TOKENS_STORAGE)
 
-    bot.send_message(chat_id=update.message.chat.id, text='Запрос принят, ищу...')
     shop = find_shop_in_shops(str.strip(update.message.text), shops)
     if shop is None:
         return bot.send_message(chat_id=update.message.chat.id, text='Нет ничего такого :(')
@@ -37,12 +37,10 @@ def find_shop_by_name(bot, update):
     shop_id = shop['id'] if isinstance(shop, dict) else None
     shop_full_response = get_shop_by_id(AUTH_TOKENS_STORAGE, shop_id=shop_id)
     if (shop_full_response.status_code == 200):
-        shop_full_data = json.loads(shop_full_response.content.decode("utf-8"))['data']
-        return bot.send_message(chat_id=update.message.chat.id, text=render_shop(shop_full_data), parse_mode='Markdown',
-                                reply_markup=build_keyboard())
-    # если поиск по ID вернул None, но имеется сокращенный объект магазина - рендерим его
-    return bot.send_message(chat_id=update.message.chat.id, text=render_shop(shop), parse_mode='Markdown',
-                            reply_markup=build_keyboard())
+        shop_full_data_json = json.loads(shop_full_response.content.decode("utf-8"))['data']
+        render_shop_answer(bot, update.message.chat.id, shop_full_data_json)
+    else:
+        return bot.send_message(chat_id=update.message.chat.id, text='Нет ничего такого :(')
 
 
 @save_chanel_decorator
@@ -53,24 +51,31 @@ def send_welcome(bot, update):
 
 @save_chanel_decorator
 def send_top_shops(bot, update):
-    shops_chunks = try_to_get_shops_from_cache(AUTH_TOKENS_STORAGE)
-    top_shops = top_shop_filter(shops_chunks)
+    try:
+        print('::', update.message.chat_id)
+        print('::', update.message.chat.id)
+        shops_chunks = try_to_get_shops_from_cache(AUTH_TOKENS_STORAGE)
+        top_shops = top_shop_filter(shops_chunks)
 
-    top_shops = sorted(top_shops, key=lambda shop: shop['name'])
-    prepare_for_render = []
+        top_shops = sorted(top_shops, key=lambda shop: shop['name'])
+        prepare_for_render = []
 
-    for shop in top_shops:
-        prepare_for_render.append((shop['name'], shop['go_link']))
+        for shop in top_shops:
+            prepare_for_render.append((shop['name'], shop['id']))
 
-    buttons = []
-    for (shop_name, shop_url) in prepare_for_render:
-        buttons.append([InlineKeyboardButton(shop_name, url=shop_url)])
-    markup = InlineKeyboardMarkup(buttons, resize_keyboard=True)
-    return bot.send_message(chat_id=update.message.chat.id, text='ТОП Магазинов:', reply_markup=markup)
-
+        buttons = []
+        for (shop_name, shop_id) in prepare_for_render:
+            buttons.append([InlineKeyboardButton(shop_name, callback_data='show_shop_info.' + shop_id)])
+        markup = InlineKeyboardMarkup(buttons, resize_keyboard=True)
+        print(markup)
+        return bot.send_message(chat_id=update.message.chat.id, text='ТОП Магазинов:', reply_markup=markup)
+    except Exception as ex:
+        print(ex)
 
 
 def init_handlers(dispatcher):
+    dispatcher.add_handler(MessageHandler(TopShopsFilter(), send_top_shops))
+
     dispatcher.add_handler(CommandHandler('start', send_welcome))
 
     dispatcher.add_handler(MessageHandler(CountryFilter(), country_show_all))
@@ -80,7 +85,6 @@ def init_handlers(dispatcher):
     dispatcher.add_handler(CallbackQueryHandler(choice_category, False, False, 'show_category.*'))
     dispatcher.add_handler(CallbackQueryHandler(show_shop, False, False, 'show_shop_info.*'))
 
-    dispatcher.add_handler(MessageHandler(TopShopsFilter(), send_top_shops))
 
     dispatcher.add_handler(MessageHandler(Filters.text, find_shop_by_name))
 
