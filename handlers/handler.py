@@ -9,14 +9,14 @@ from handlers.letyshops.api.category import CategoryFilter, category_handler, ch
 from handlers.letyshops.api.country import CountryFilter, country_handler, save_country
 from handlers.letyshops.api.relogin.token_helpers import AUTH_TOKENS_STORAGE
 from handlers.letyshops.api.shops import render_shop, find_shop_in_shops, get_shop_by_id, \
-    top_shop_filter, try_to_get_shops_from_cache, TopShopsFilter, render_shop_answer
+    top_shop_filter, try_to_get_shops_from_cache, TopShopsFilter, render_shop_answer, get_top_shops
 
 from handlers.letyshops.api.country import show_all as country_show_all
 from handlers.letyshops.api.category import show_all as category_show_all
 
 
 def build_keyboard():
-    buttons = [[KeyboardButton('ТОП Магазинов')], [KeyboardButton('Категории')], [KeyboardButton('Указать страну')]]
+    buttons = [[KeyboardButton('ТОП 10 Магазинов')], [KeyboardButton('Категории')], [KeyboardButton('Указать страну')]]
     return ReplyKeyboardMarkup(buttons, resize_keyboard=True)
 
 
@@ -26,9 +26,10 @@ def in_development_message(bot, update):
 
 
 @save_chanel_decorator
-def find_shop_by_name(bot, update):
+def find_shop_by_name(bot, update, *args, **kwargs):
+    country = kwargs['country']
     bot.send_message(chat_id=update.message.chat.id, text='Запрос принят, ищу...')
-    shops = try_to_get_shops_from_cache(AUTH_TOKENS_STORAGE)
+    shops = try_to_get_shops_from_cache(AUTH_TOKENS_STORAGE, country)
 
     shop = find_shop_in_shops(str.strip(update.message.text), shops)
     if shop is None:
@@ -49,15 +50,42 @@ def send_welcome(bot, update):
                     reply_markup=build_keyboard())
 
 
-@save_chanel_decorator
-def send_top_shops(bot, update):
-    try:
-        print('::', update.message.chat_id)
-        print('::', update.message.chat.id)
-        shops_chunks = try_to_get_shops_from_cache(AUTH_TOKENS_STORAGE)
-        top_shops = top_shop_filter(shops_chunks)
+# @save_chanel_decorator
+# def send_top_shops(bot, update):
+#     country = 'RU'
+#     try:
+#         shops_chunks = try_to_get_shops_from_cache(AUTH_TOKENS_STORAGE, country)
+#         top_shops = top_shop_filter(shops_chunks)
+#
+#
+#         print(top_shops)
+#
+#         top_shops = sorted(top_shops, key=lambda shop: shop['name'])
+#         prepare_for_render = []
+#
+#         for shop in top_shops:
+#             prepare_for_render.append((shop['name'], shop['id']))
+#
+#         buttons = []
+#         for (shop_name, shop_id) in prepare_for_render[:10]:
+#             # buttons.append([InlineKeyboardButton(shop_name, callback_data='show_shop_info.' + shop_id)])
+#
+#             print('show_shop_info.' + shop_id)
+#             buttons.append([InlineKeyboardButton(shop_name, callback_data='show_shop_info.' + shop_id)])
+#         markup = InlineKeyboardMarkup(buttons, resize_keyboard=True)
+#         print(markup)
+#         bot.send_message(chat_id=update.message.chat.id, text='ТОП 10 Магазинов:', reply_markup=markup)
+#     except Exception as ex:
+#         print(ex)
 
-        top_shops = sorted(top_shops, key=lambda shop: shop['name'])
+@save_chanel_decorator
+def send_top_shops(bot, update, *args, **kwargs):
+    limit = 10
+    offset = 0
+    country = kwargs['country']
+    try:
+        top_shops = get_top_shops(AUTH_TOKENS_STORAGE, country, limit, offset)
+
         prepare_for_render = []
 
         for shop in top_shops:
@@ -67,8 +95,7 @@ def send_top_shops(bot, update):
         for (shop_name, shop_id) in prepare_for_render:
             buttons.append([InlineKeyboardButton(shop_name, callback_data='show_shop_info.' + shop_id)])
         markup = InlineKeyboardMarkup(buttons, resize_keyboard=True)
-        print(markup)
-        return bot.send_message(chat_id=update.message.chat.id, text='ТОП Магазинов:', reply_markup=markup)
+        bot.send_message(chat_id=update.message.chat.id, text='ТОП 10 Магазинов:', reply_markup=markup)
     except Exception as ex:
         print(ex)
 

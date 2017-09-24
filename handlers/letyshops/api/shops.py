@@ -10,11 +10,15 @@ from requests import Response
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import BaseFilter
 
+from handlers.decorators import save_chanel_decorator
 from handlers.letyshops.api.relogin.token_helpers import token_updater
+from handlers.letyshops.api.rountes import ROUTES
 
-GET_ALL_SHOPS_ROUTE = 'shops?page[offset]={}&page[limit]={}'
-GET_SHOP_INFO_BY_ID_ROUTE = 'shops/{}'
-GET_ALL_SHOP_BY_CATEGORIES_ROUTE = 'shops?filter[category_ids]={}'
+
+
+GET_ALL_SHOPS_ROUTE = ROUTES['get_shops']
+GET_SHOP_INFO_BY_ID_ROUTE = ROUTES['get_shop_by_id']
+GET_ALL_SHOP_BY_CATEGORIES_ROUTE = ROUTES['get_shops_by_category']
 
 mini_cache = []
 
@@ -65,23 +69,26 @@ def get_shop_by_id(storage, *args, **kwargs) -> Response:
         return requests.get(url, headers={'Authorization': 'Bearer ' + access_token}, verify=False)
     return None
 
-
 @token_updater
-def get_shop_by_category(storage, *args, **kwargs) -> Response:
+def get_shop_by_category(storage, country, *args, **kwargs) -> Response:
+    print(kwargs)
+    # country = kwargs['chanel'].country
     if (kwargs.get('category_id')):
-        url = urllib.parse.urljoin(os.getenv('API_URL'), GET_ALL_SHOP_BY_CATEGORIES_ROUTE).format(kwargs['category_id'])
+        url = urllib.parse.urljoin(os.getenv('API_URL'), GET_ALL_SHOP_BY_CATEGORIES_ROUTE).format(kwargs['category_id'], country)
+        print(url)
         access_token = storage['access_token']
         return requests.get(url, headers={'Authorization': 'Bearer ' + access_token}, verify=False)
     return None
 
 
-def get_all_shops(storage):
+def get_all_shops(storage, country):
     print('upload shops')
 
     @token_updater
     def get_shops(storage, *args, **kwargs):
         limit, offset = kwargs['limit'], kwargs['offset']
-        url = urllib.parse.urljoin(os.getenv('API_URL'), GET_ALL_SHOPS_ROUTE).format(offset, limit)
+        url = urllib.parse.urljoin(os.getenv('API_URL'), GET_ALL_SHOPS_ROUTE).format(country, offset, limit)
+        print(url)
         access_token = storage['access_token']
         return requests.get(url, headers={'Authorization': 'Bearer ' + access_token}, verify=False)
 
@@ -117,20 +124,20 @@ def top_shops(shop_list):
     print('TOP SHOPS')
 
 
-def try_to_get_shops_from_cache(storage):
+def try_to_get_shops_from_cache(storage, country):
     if mini_cache:
         return mini_cache
 
-    shops = get_all_shops(storage)
+    shops = get_all_shops(storage, country)
     for shop in shops:
         mini_cache.append(shop)
 
-    return try_to_get_shops_from_cache(storage)
+    return try_to_get_shops_from_cache(storage, country)
 
 
 class TopShopsFilter(BaseFilter):
     def filter(self, message):
-        return 'ТОП Магазинов' in message.text
+        return 'ТОП 10 Магазинов' in message.text
 
 
 def render_shop_answer(bot, chat_id, shop_data_json):
@@ -139,3 +146,10 @@ def render_shop_answer(bot, chat_id, shop_data_json):
     markup = InlineKeyboardMarkup(buttons, resize_keyboard=True)
     return bot.send_message(chat_id=chat_id, text=render_shop(shop_data_json), parse_mode='Markdown',
                             reply_markup=markup)
+
+
+def get_top_shops(storage, country, limit, offset):
+    url = urllib.parse.urljoin(os.getenv('API_URL'), GET_ALL_SHOPS_ROUTE).format(country, offset, limit)
+    access_token = storage['access_token']
+    result = requests.get(url, headers={'Authorization': 'Bearer ' + access_token}, verify=False)
+    return json.loads(result.content.decode("utf-8"))['data']

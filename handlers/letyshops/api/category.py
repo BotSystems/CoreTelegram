@@ -3,19 +3,16 @@ import os
 import urllib.parse
 
 import requests
-from os.path import dirname, join
-
-from dotenv import load_dotenv
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
-
-from handlers.letyshops.api.relogin.token_helpers import AUTH_TOKENS_STORAGE
 from telegram.ext import BaseFilter, ConversationHandler, MessageHandler, CallbackQueryHandler
 
+from handlers.decorators import save_chanel_decorator
+from handlers.letyshops.api.relogin.token_helpers import AUTH_TOKENS_STORAGE
 from handlers.letyshops.api.relogin.token_helpers import token_updater
-from handlers.letyshops.api.shops import get_shop_by_category, get_shop_by_id, render_shop, render_shop_answer
+from handlers.letyshops.api.rountes import ROUTES
+from handlers.letyshops.api.shops import get_shop_by_category, get_shop_by_id, render_shop_answer
 
-GET_ALL_CATEGORIES_ROUTE = 'shop-categories'
-
+GET_ALL_CATEGORIES_ROUTE = ROUTES['get_categories']
 
 
 @token_updater
@@ -27,26 +24,34 @@ def get_categories(storage, *args, **kwarg):
 
 CATEGORIES = get_categories(AUTH_TOKENS_STORAGE)
 
+
 def build_keyboard(category_list):
     category_list = json.loads(category_list.content.decode("utf-8"))['data']
     category_list = list(filter(lambda category: int(category['parent_id']), category_list))
-    category_list = sorted(category_list, key = lambda category: category['name'])
+    category_list = sorted(category_list, key=lambda category: category['name'])
     categories = []
     for (category) in category_list:
         category_keyboard = [InlineKeyboardButton(category['name'], callback_data='show_category.' + category['id'])]
         categories.append(category_keyboard)
     return categories
 
+
 def show_all(bot, update):
     reply_markup = InlineKeyboardMarkup(build_keyboard(CATEGORIES))
     update.message.reply_text(u"Выберите категорию для поиска", reply_markup=reply_markup)
 
-def choice_category(bot, update):
+
+@save_chanel_decorator
+def choice_category(bot, update, *args, **kwargs):
+    print(kwargs)
+    country = kwargs['country']
     selected_category_id = update.callback_query.data.split('.')[1]
 
     query = update.callback_query
 
-    shops = json.loads(get_shop_by_category(AUTH_TOKENS_STORAGE, category_id=selected_category_id).content.decode("utf-8"))['data']
+    shops = \
+        json.loads(get_shop_by_category(AUTH_TOKENS_STORAGE, country, category_id=selected_category_id).content.decode("utf-8"))[
+            'data']
     prepare_for_render = []
 
     for shop in shops:
