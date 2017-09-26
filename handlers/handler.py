@@ -9,7 +9,7 @@ from handlers.letyshops.api.category import CategoryFilter, category_handler, ch
 from handlers.letyshops.api.country import CountryFilter, country_handler, save_country
 from handlers.letyshops.api.relogin.token_helpers import AUTH_TOKENS_STORAGE
 from handlers.letyshops.api.shops import render_shop, find_shop_in_shops, get_shop_by_id, \
-    top_shop_filter, try_to_get_shops_from_cache, TopShopsFilter, render_shop_answer, get_top_shops
+    top_shop_filter, try_to_get_shops_from_cache, TopShopsFilter, render_shop_answer, get_top_shops, get_all_shops
 
 from handlers.letyshops.api.country import show_all as country_show_all
 from handlers.letyshops.api.category import show_all as category_show_all
@@ -29,7 +29,8 @@ def in_development_message(bot, update):
 def find_shop_by_name(bot, update, *args, **kwargs):
     country = kwargs['country']
     bot.send_message(chat_id=update.message.chat.id, text='Запрос принят, ищу...')
-    shops = try_to_get_shops_from_cache(AUTH_TOKENS_STORAGE, country)
+    # shops = try_to_get_shops_from_cache(AUTH_TOKENS_STORAGE, country)
+    shops = get_all_shops(AUTH_TOKENS_STORAGE, country)
 
     shop = find_shop_in_shops(str.strip(update.message.text), shops)
     if shop is None:
@@ -39,13 +40,14 @@ def find_shop_by_name(bot, update, *args, **kwargs):
     shop_full_response = get_shop_by_id(AUTH_TOKENS_STORAGE, shop_id=shop_id)
     if (shop_full_response.status_code == 200):
         shop_full_data_json = json.loads(shop_full_response.content.decode("utf-8"))['data']
+        print(shop_full_data_json)
         render_shop_answer(bot, update.message.chat.id, shop_full_data_json)
     else:
         return bot.send_message(chat_id=update.message.chat.id, text='Нет ничего такого :(')
 
 
 @save_chanel_decorator
-def send_welcome(bot, update):
+def send_welcome(bot, update, *args, **kwargs):
     bot.sendMessage(chat_id=update.message.chat_id, text="Для получения информации о магазине - введите его название.",
                     reply_markup=build_keyboard())
 

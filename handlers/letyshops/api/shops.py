@@ -29,9 +29,8 @@ def render_shop(shop):
 
     name = shop['name']
     logo = shop['image']
-    url = shop['url']
-    cashback_waiting_days = shop['cashback_waiting_days'] if shop.get('cashback_waiting_days',
-                                                                      '').isdigit() else 'Не указано'
+    # url = shop['url']
+    cashback_waiting_days = shop['cashback_waiting_days'] if shop.get('cashback_waiting_days') else 'Не указано'
     description = shop['description'] if shop['description'] is not None else 'Отсутствует'
 
     cashback_rate_value = None
@@ -49,13 +48,13 @@ def render_shop(shop):
     if cashback_type_floated is not None:
         cashback_type_floated = 'до' if cashback_type_floated is True else ''
 
-    template = '[{}]({})\n*Кэшбэк:* {} {}{}\n*Доп. инфо:* {}\n*Сколько дней ждать кэшбэк:* {}'
+    template = '[{}]({})\n*Кэшбэк:* {} {}{}\n*Доп. инфо:* {}\n*Длительность ожидания кэшбэка:* {}'
     data = [name, logo, cashback_type_floated, cashback_rate_value, cashback_rate_type,
             re.sub(r'<[^>]*?>', '', description), cashback_waiting_days]
 
     if all([(cashback_setting is None) for cashback_setting in
             [cashback_rate_value, cashback_rate_type, cashback_type_floated]]):
-        template = '[{}]({})\n*Доп. инфо:* {}\n*Сколько дней ждать кэшбэк:* {}'
+        template = '[{}]({})\n*Доп. инфо:* {}\n*Длительность ожидания кэшбэка:* {}'
         data = [name, logo, re.sub(r'<[^>]*?>', '', description), cashback_waiting_days]
 
     return template.format(*data)
@@ -144,7 +143,9 @@ def render_shop_answer(bot, chat_id, shop_data_json):
     buttons = []
     buttons.append([InlineKeyboardButton('Перейти в магазин', url=shop_data_json['url'])])
     markup = InlineKeyboardMarkup(buttons, resize_keyboard=True)
-    return bot.send_message(chat_id=chat_id, text=render_shop(shop_data_json), parse_mode='Markdown',
+    render_result = render_shop(shop_data_json)
+    render_result = render_result.replace('&nbsp;', ' ', -1)
+    return bot.send_message(chat_id=chat_id, text=render_result, parse_mode='Markdown',
                             reply_markup=markup)
 
 
