@@ -48,7 +48,7 @@ def find_shop_by_name(bot, update, *args, **kwargs):
 
 @save_chanel_decorator
 def send_welcome(bot, update, *args, **kwargs):
-    bot.sendMessage(chat_id=update.message.chat_id, text="Для получения информации о магазине - введите его название.",
+    bot.sendMessage(chat_id=update.message.chat_id, text="Твой первый шаг в мир кэшбэка начинается здесь. Отправь мне название магазина и я подскажу тебе информацию об актуальной ставке кэшбэка.",
                     reply_markup=build_keyboard())
 
 
