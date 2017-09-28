@@ -7,6 +7,7 @@ from telegram.ext import MessageHandler, CommandHandler, Filters, CallbackQueryH
 from handlers.decorators import save_chanel_decorator
 from handlers.letyshops.api.category import CategoryFilter, category_handler, choice_category, show_shop
 from handlers.letyshops.api.country import CountryFilter, country_handler, save_country
+from handlers.letyshops.api.filters import WhatIsCashbackFilter, WantCashbackFilter, what_is_cashback, want_cashback
 from handlers.letyshops.api.relogin.token_helpers import AUTH_TOKENS_STORAGE
 from handlers.letyshops.api.shops import render_shop, find_shop_in_shops, get_shop_by_id, \
     top_shop_filter, try_to_get_shops_from_cache, TopShopsFilter, render_shop_answer, get_top_shops, get_all_shops
@@ -16,7 +17,7 @@ from handlers.letyshops.api.category import show_all as category_show_all
 
 
 def build_keyboard():
-    buttons = [[KeyboardButton('ТОП 10 Магазинов')], [KeyboardButton('Категории')], [KeyboardButton('Указать страну')]]
+    buttons = [[KeyboardButton('ТОП 10 Магазинов')], [KeyboardButton('Категории'), KeyboardButton('Настройки')], [KeyboardButton('Что такое кэшбэк?'), KeyboardButton('Хочу получать кэшбэк!')]]
     return ReplyKeyboardMarkup(buttons, resize_keyboard=True)
 
 
@@ -104,6 +105,9 @@ def send_top_shops(bot, update, *args, **kwargs):
 
 def init_handlers(dispatcher):
     dispatcher.add_handler(MessageHandler(TopShopsFilter(), send_top_shops))
+
+    dispatcher.add_handler(MessageHandler(WhatIsCashbackFilter(), what_is_cashback))
+    dispatcher.add_handler(MessageHandler(WantCashbackFilter(), want_cashback))
 
     dispatcher.add_handler(CommandHandler('start', send_welcome))
 
