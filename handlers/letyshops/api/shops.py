@@ -49,8 +49,12 @@ def render_shop(shop):
         cashback_type_floated = 'до' if cashback_type_floated is True else ''
 
     template = '[{}]({})\n*Кэшбэк:* {} {}{}\n*Доп. инфо:* {}\n*Длительность ожидания кэшбэка:* {}'
-    data = [name, logo, cashback_type_floated, cashback_rate_value, cashback_rate_type,
-            re.sub(r'<[^>]*?>', '', description), cashback_waiting_days]
+    description = re.sub(r'<[^>]*?>', '', description)
+    description = re.sub(r'[*]', '', description)
+    description = re.sub(r'&nbsp;', ' ', description)
+    data = [name, logo, cashback_type_floated, cashback_rate_value, cashback_rate_type, description.strip(), cashback_waiting_days]
+    # data = [name, logo, cashback_type_floated, cashback_rate_value, cashback_rate_type, '', cashback_waiting_days]
+    print(description)
 
     if all([(cashback_setting is None) for cashback_setting in
             [cashback_rate_value, cashback_rate_type, cashback_type_floated]]):
