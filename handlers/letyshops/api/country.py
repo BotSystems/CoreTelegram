@@ -11,13 +11,13 @@ COUNTRIES = (
 )
 
 
-def build_keyboard(country_list):
-    countries = []
-    for (country, callback) in country_list:
-        country_keyboard = [InlineKeyboardButton(country, callback_data=callback)]
-        countries.append(country_keyboard)
-
-    return countries
+# def build_keyboard(country_list):
+#     countries = []
+#     for (country, callback) in country_list:
+#         country_keyboard = [InlineKeyboardButton(country, callback_data=callback)]
+#         countries.append(country_keyboard)
+#
+#     return countries
 
 
 
@@ -31,9 +31,9 @@ def complete(bot, update):
     )
 
 
-class CountryFilter(BaseFilter):
-    def filter(self, message):
-        return 'Настройки' in message.text
+# class CountryFilter(BaseFilter):
+#     def filter(self, message):
+#         return 'Настройки' in message.text
 
 
 country_handler = ConversationHandler(

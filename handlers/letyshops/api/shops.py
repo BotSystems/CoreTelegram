@@ -72,16 +72,16 @@ def render_shop(shop):
 #         return requests.get(url, headers={'Authorization': 'Bearer ' + access_token}, verify=False)
 #     return None
 
-@token_updater
-def get_shop_by_category(storage, country, *args, **kwargs) -> Response:
-    print(kwargs)
-    # country = kwargs['chanel'].country
-    if (kwargs.get('category_id')):
-        url = urllib.parse.urljoin(os.getenv('API_URL'), GET_ALL_SHOP_BY_CATEGORIES_ROUTE).format(kwargs['category_id'], country)
-        print(url)
-        access_token = storage['access_token']
-        return requests.get(url, headers={'Authorization': 'Bearer ' + access_token}, verify=False)
-    return None
+# @token_updater
+# def get_shop_by_category(storage, country, *args, **kwargs) -> Response:
+#     print(kwargs)
+#     # country = kwargs['chanel'].country
+#     if (kwargs.get('category_id')):
+#         url = urllib.parse.urljoin(os.getenv('API_URL'), GET_ALL_SHOP_BY_CATEGORIES_ROUTE).format(kwargs['category_id'], country)
+#         print(url)
+#         access_token = storage['access_token']
+#         return requests.get(url, headers={'Authorization': 'Bearer ' + access_token}, verify=False)
+#     return None
 
 
 def get_all_shops(storage, country):

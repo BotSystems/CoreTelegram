@@ -24,7 +24,7 @@ def build_shop(shop_dict: dict) -> Shop:
 
     shop = Shop(id, logo, name, url, description)
 
-    if ('cashback_waiting_days' in shop_dict):
+    if ('cashback_waiting_days' in shop_dict and shop_dict['cashback_rate'] is not None):
         cashback_dict = shop_dict['cashback_rate']
         cashback_dict['cashback_waiting_days'] = shop_dict['cashback_waiting_days']
         cashback = build_cashback(shop_dict.get('cashback_rate', {}))

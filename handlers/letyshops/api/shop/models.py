@@ -50,11 +50,11 @@ class Shop:
         return self.__repr__()
 
     def __repr__(self):
-        if self.cashback.is_exist():
-            data = [self.name, self.logo, self.cashback, self.normalize(self.description)]
+        if (self.cashback and self.cashback.is_exist()):
+            data = [self.name, self.logo, self.cashback, self.normalize(self.description or '')]
             result = '[{}]({})\n{}\n*Дополнительная информация:* {}'.format(*data)
         else:
-            data = [self.name, self.logo, self.normalize(self.description)]
+            data = [self.name, self.logo, self.normalize(self.description or '')]
             result = '[{}]({})\n*Дополнительная информация:* {}'.format(*data)
 
         return result
