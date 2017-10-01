@@ -20,31 +20,6 @@ def build_keyboard(country_list):
     return countries
 
 
-def show_all(bot, update):
-    reply_markup = InlineKeyboardMarkup(build_keyboard(COUNTRIES))
-    update.message.reply_text(u"Выбери, пожалуйста страну для поиска, на этом все настройки будут оконченны:", reply_markup=reply_markup)
-
-
-def save_country(bot, update):
-    selected_country = update.callback_query.data.split('.')[1] or 'ru'
-
-    query = update.callback_query
-
-    chanel = find_chanel_by_chat(query.message.chat)
-    chanel.set_country(selected_country)
-
-    default_country = u'России'
-    countries = {
-        'ua': u'Украины',
-        'ru':default_country,
-        'by': u'Белоруссии',
-        'kz': u'Казахстана',
-    }
-
-    bot.sendMessage(
-        chat_id=query.message.chat_id,
-        text=u"Настройки готовы, давай же проверим ТОП 10 магазинов {}.".format(countries.get(selected_country, default_country))
-    )
 
 def complete(bot, update):
     query = update.callback_query

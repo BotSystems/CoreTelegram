@@ -64,13 +64,13 @@ def render_shop(shop):
     return template.format(*data)
 
 
-@token_updater
-def get_shop_by_id(storage, *args, **kwargs) -> Response:
-    if (kwargs.get('shop_id')):
-        url = urllib.parse.urljoin(os.getenv('API_URL'), GET_SHOP_INFO_BY_ID_ROUTE).format(kwargs['shop_id'])
-        access_token = storage['access_token']
-        return requests.get(url, headers={'Authorization': 'Bearer ' + access_token}, verify=False)
-    return None
+# @token_updater
+# def get_shop_by_id(storage, *args, **kwargs) -> Response:
+#     if (kwargs.get('shop_id')):
+#         url = urllib.parse.urljoin(os.getenv('API_URL'), GET_SHOP_INFO_BY_ID_ROUTE).format(kwargs['shop_id'])
+#         access_token = storage['access_token']
+#         return requests.get(url, headers={'Authorization': 'Bearer ' + access_token}, verify=False)
+#     return None
 
 @token_updater
 def get_shop_by_category(storage, country, *args, **kwargs) -> Response:
@@ -138,23 +138,15 @@ def try_to_get_shops_from_cache(storage, country):
     return try_to_get_shops_from_cache(storage, country)
 
 
-class TopShopsFilter(BaseFilter):
-    def filter(self, message):
-        return 'ТОП 10 Магазинов' in message.text
 
 
-def render_shop_answer(bot, chat_id, shop_data_json):
-    buttons = []
-    buttons.append([InlineKeyboardButton('Перейти в магазин', url=shop_data_json['url'])])
-    markup = InlineKeyboardMarkup(buttons, resize_keyboard=True)
-    render_result = render_shop(shop_data_json)
-    render_result = render_result.replace('&nbsp;', ' ', -1)
-    return bot.send_message(chat_id=chat_id, text=render_result, parse_mode='Markdown',
-                            reply_markup=markup)
 
+# def render_shop_answer(bot, chat_id, shop_data_json):
+#     buttons = []
+#     buttons.append([InlineKeyboardButton('Перейти в магазин', url=shop_data_json['url'])])
+#     markup = InlineKeyboardMarkup(buttons, resize_keyboard=True)
+#     render_result = render_shop(shop_data_json)
+#     render_result = render_result.replace('&nbsp;', ' ', -1)
+#     return bot.send_message(chat_id=chat_id, text=render_result, parse_mode='Markdown',
+#                             reply_markup=markup)
 
-def get_top_shops(storage, country, limit, offset):
-    url = urllib.parse.urljoin(os.getenv('API_URL'), GET_ALL_SHOPS_ROUTE).format(country, offset, limit)
-    access_token = storage['access_token']
-    result = requests.get(url, headers={'Authorization': 'Bearer ' + access_token}, verify=False)
-    return json.loads(result.content.decode("utf-8"))['data']
