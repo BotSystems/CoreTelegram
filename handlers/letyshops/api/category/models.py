@@ -10,15 +10,14 @@ class Category:
         self.title = title
         self.has_parent = has_parent
 
+    @property
     def is_enabled(self):
-        return self.title.lower() not in self.DISABLED and not self.has_parent
+        return self.title.lower() not in self.DISABLED and self.has_parent
 
     @staticmethod
     def filter(categories):
-        # list(filter(lambda category: int(category['parent_id']), category_list))
-        return categories
+        return list(filter(lambda category: category.is_enabled, categories))
 
     @staticmethod
     def order(categories):
-        # sorted(category_list, key=lambda category: category['name'])
-        return categories
+        return sorted(categories, key=lambda category: category.title)
