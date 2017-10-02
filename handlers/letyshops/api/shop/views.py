@@ -64,7 +64,9 @@ def find_shop_by_name(bot, update, *args, **kwargs):
 
         if (shops_json):
             first_shop_in_result = shops_json[0]
-            shop = build_shop(first_shop_in_result)
+
+            shops_json = get_shop_by_id(TOKEN, shop_id=first_shop_in_result.get('id'))
+            shop = build_shop(shops_json)
 
             markup = shop_details_keyboard(shop.url)
             return bot.send_message(update.message.chat.id, shop.render(), parse_mode='Markdown', reply_markup=markup)
