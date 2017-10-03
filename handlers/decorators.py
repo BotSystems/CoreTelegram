@@ -6,7 +6,6 @@ def save_chanel_decorator(fn):
     def wrapper(bot, update, *args, **kwargs):
         print('SAVE CHANEL')
 
-        print(update.message.chat)
         selected_country = 'ru'
         try:
             if (update.callback_query):
