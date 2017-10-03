@@ -2,6 +2,7 @@
 import os
 
 from handlers.decorators import save_chanel_decorator
+from handlers.keyboard import build_keyboard
 from handlers.letyshops.api.shop.builder import build_shops, build_shop
 from handlers.letyshops.api.shop.controllers import get_top_shops, get_shop_by_id, get_shop_by_category, \
     get_shop_by_name
@@ -58,7 +59,7 @@ def send_shops_in_category(bot, update, *args, **kwargs):
 def find_shop_by_name(bot, update, *args, **kwargs):
     try:
         searching_shop_name = str.strip(update.message.text)
-        bot.send_message(chat_id=update.message.chat.id, text='Запрос принят, ищу...')
+        bot.send_message(chat_id=update.message.chat.id, text='Запрос принят, ищу...', reply_markup=build_keyboard())
 
         shops_json = get_shop_by_name(TOKEN, shop_name=searching_shop_name)
 
