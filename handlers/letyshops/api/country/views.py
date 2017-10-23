@@ -38,6 +38,7 @@ def set_country(bot, update, *args, **kwargs):
         query = update.callback_query
         print('-1-')
         chanel = find_chanel_by_chat(query.message.chat)
+        print(':: ', chanel)
         chanel.set_country(selected_country)
         print('-2-')
 
