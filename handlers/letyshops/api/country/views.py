@@ -36,9 +36,10 @@ def set_country(bot, update, *args, **kwargs):
         selected_country = update.callback_query.data.split('.')[1] or 'ru'
 
         query = update.callback_query
-
+        print('-1-')
         chanel = find_chanel_by_chat(query.message.chat)
         chanel.set_country(selected_country)
+        print('-2-')
 
         default_country = u'России'
         countries = {
