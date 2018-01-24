@@ -2,10 +2,9 @@
 from models import Chanel
 
 
-def save_chanel_decorator(fn):
+def save_chanel_decorator(fn, *args, **kwargs):
+    
     def wrapper(bot, update, *args, **kwargs):
-        print('SAVE CHANEL')
-
         selected_country = 'ru'
         try:
             if (update.callback_query):
@@ -26,6 +25,7 @@ def save_chanel_decorator(fn):
         except Exception as ex:
             print(ex)
 
-        return fn(bot, update, country=selected_country)
+        kwargs['country'] = selected_country
+        return fn(bot, update, *args, **kwargs)
 
     return wrapper

@@ -5,20 +5,22 @@ from handlers.letyshops.api.category.builder import build_categories
 from handlers.letyshops.api.category.controllers import get_categories
 from handlers.letyshops.api.category.inline_keyboards import show_categories_keyboard
 from handlers.letyshops.api.category.models import Category
-
-TOKEN = '{} {}'.format(os.getenv('SERVER_TOKEN_PREFIX'), os.getenv('SERVER_TOKEN_VALUE'))
-
+from handlers.paging.page import Page
+from handlers.letyshops.api.helpers import build_markup, answer_with_edit
+from handlers.letyshops.api.constants import CATEGORIES_QUERY, TOKEN
 
 @save_chanel_decorator
 def send_all_categories(bot, update, *args, **kwargs):
+    limit, offset = kwargs.get('limit', 5), kwargs.get('offset', 0)
     try:
-        category_json = get_categories(TOKEN)
-        categories = build_categories(category_json)
+        categories_data, meta = get_categories(TOKEN, limit, offset)
+        categories = build_categories(categories_data)
 
-        categories = Category.filter(categories)
+        # Убрать из списка подкатегории?
+        # categories = Category.filter(categories)
         categories = Category.order(categories)
-        markup = show_categories_keyboard(categories)
 
-        return bot.send_message(chat_id=update.message.chat.id, text='Категории:', reply_markup=markup)
+        markup = build_markup(show_categories_keyboard(categories), Page(meta), CATEGORIES_QUERY)
+        return answer_with_edit('*Категории:*', bot, update, markup, 'Markdown')
     except Exception as ex:
         print('Exception: ', ex)

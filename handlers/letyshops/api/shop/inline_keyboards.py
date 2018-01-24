@@ -10,5 +10,5 @@ def shop_details_keyboard(shop_url):
 def shop_list_keyboard(shops):
     buttons = []
     for shop in shops:
-        buttons.append([InlineKeyboardButton(shop.name.capitalize(), callback_data='show_shop_info.' + shop.id)])
-    return InlineKeyboardMarkup(buttons)
+        buttons.append([InlineKeyboardButton(shop.name.capitalize(), callback_data='show_shop_info.{}'.format(shop.id))])
+    return buttons

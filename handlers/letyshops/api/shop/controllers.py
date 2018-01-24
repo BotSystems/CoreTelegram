@@ -13,10 +13,11 @@ GET_ALL_SHOP_BY_CATEGORIES_ROUTE = ROUTES['get_shops_by_category']
 GET_SHOP_INFO_BY_NAME_ROUTE = ROUTES['get_shop_by_name']
 
 
-def get_top_shops(token, country, limit=10, offset=0):
+def get_top_shops(token, country, limit, offset):
     url = urllib.parse.urljoin(os.getenv('API_URL'), GET_TOP_SHOPS_ROUTE).format(country, limit, offset)
     result = requests.get(url, headers={'Authorization': token}, verify=False)
-    return json.loads(result.content.decode("utf-8"))['data']
+    result = json.loads(result.content.decode("utf-8"))
+    return (result['data'], result['meta'])
 
 
 def get_shop_by_id(token, *args, **kwargs):
@@ -25,10 +26,14 @@ def get_shop_by_id(token, *args, **kwargs):
     return json.loads(result.content.decode("utf-8"))['data']
 
 
-def get_shop_by_category(token, country, *args, **kwargs):
-        url = urllib.parse.urljoin(os.getenv('API_URL'), GET_ALL_SHOP_BY_CATEGORIES_ROUTE).format(kwargs['category_id'], country)
+def get_shop_by_category(token, country, category_id, limit, offset):
+        url = urllib.parse.urljoin(os.getenv('API_URL'), GET_ALL_SHOP_BY_CATEGORIES_ROUTE).format(limit, offset, category_id, country)
+        print(url)
         result = requests.get(url, headers={'Authorization': token}, verify=False)
-        return json.loads(result.content.decode("utf-8"))['data']
+
+        result = json.loads(result.content.decode("utf-8"))
+        return (result['data'], result['meta'])
+        #return json.loads(result.content.decode("utf-8"))['data']
 
 
 def get_shop_by_name(token, *args, **kwargs):

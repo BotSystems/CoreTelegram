@@ -5,4 +5,4 @@ from telegram.ext import BaseFilter
 
 class TopShopsFilter(BaseFilter):
     def filter(self, message):
-        return 'ТОП 10 Магазинов' in message.text
+        return 'ТОП Магазинов' in message.text

@@ -7,19 +7,22 @@ from handlers.letyshops.api.shop.builder import build_shops, build_shop
 from handlers.letyshops.api.shop.controllers import get_top_shops, get_shop_by_id, get_shop_by_category, \
     get_shop_by_name
 from handlers.letyshops.api.shop.inline_keyboards import shop_details_keyboard, shop_list_keyboard
-
-TOKEN = '{} {}'.format(os.getenv('SERVER_TOKEN_PREFIX'), os.getenv('SERVER_TOKEN_VALUE'))
-
+from handlers.paging.page import Page
+from handlers.letyshops.api.category.view import send_all_categories
+from handlers.letyshops.api.helpers import build_markup, answer_with_edit, limit_offset_query
+from handlers.letyshops.api.constants import TOP_QUERY, TOKEN, CATEGORY_QUERY
+from handlers.letyshops.api.category.controllers import get_selected_category
 
 @save_chanel_decorator
 def send_top_shops(bot, update, *args, **kwargs):
+    limit, offset = kwargs.get('limit', 5), kwargs.get('offset', 0)
     try:
         country = kwargs['country']
-        shops_json = get_top_shops(TOKEN, country)
-        shops = build_shops(shops_json)
+        shops, meta = get_top_shops(TOKEN, country, limit, offset)
+        shops = build_shops(shops)
 
-        markup = shop_list_keyboard(shops)
-        return bot.send_message(update.message.chat.id, 'ТОП 10 Магазинов:', reply_markup=markup)
+        markup = build_markup(shop_list_keyboard(shops), Page(meta), TOP_QUERY)
+        return answer_with_edit('*ТОП Магазинов:*', bot, update, markup, 'Markdown')
     except Exception as ex:
         print('Exception: ', ex)
 
@@ -41,16 +44,31 @@ def send_shop_info(bot, update, *args, **kwargs):
 
 @save_chanel_decorator
 def send_shops_in_category(bot, update, *args, **kwargs):
+    limit, offset = kwargs.get('limit', 5), kwargs.get('offset', 0)
     try:
         country = kwargs.get('country', 'ru')
-        selected_category_id = update.callback_query.data.split('.')[1]
+
+        callback_query_array = update.callback_query.data.split('.')
+        if (len(callback_query_array)) > 7:
+            selected_category_id = update.callback_query.data.split('.')[8]
+        else:
+            selected_category_id = update.callback_query.data.split('.')[1]
+
+        selected_category_title = get_selected_category(TOKEN, selected_category_id)
+        
         query = update.callback_query
 
-        shops_json = get_shop_by_category(TOKEN, country, category_id=selected_category_id)
-        shops = build_shops(shops_json)
+        shops, meta = get_shop_by_category(TOKEN, country, selected_category_id, limit, offset)
+        shops = build_shops(shops)
 
-        markup = shop_list_keyboard(shops)
-        return bot.send_message(query.message.chat.id, 'Магазины:', reply_markup=markup)
+        markup = build_markup(shop_list_keyboard(shops), Page(meta), CATEGORY_QUERY, extra=selected_category_id)
+        
+        if (len(callback_query_array)) > 7:
+            chat_id = update.callback_query.message.chat.id
+            message_id = update.callback_query.message.message_id
+            return bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id, inline_message_id=None, reply_markup=markup)
+        else:
+            return bot.send_message(query.message.chat.id, '*Магазины (*{}*):*'.format(selected_category_title), reply_markup=markup, parse_mode = 'Markdown')
     except Exception as ex:
         print('Exception: ', ex)
 

@@ -54,7 +54,6 @@ def render_shop(shop):
     description = re.sub(r'&nbsp;', ' ', description)
     data = [name, logo, cashback_type_floated, cashback_rate_value, cashback_rate_type, description.strip(), cashback_waiting_days]
     # data = [name, logo, cashback_type_floated, cashback_rate_value, cashback_rate_type, '', cashback_waiting_days]
-    print(description)
 
     if all([(cashback_setting is None) for cashback_setting in
             [cashback_rate_value, cashback_rate_type, cashback_type_floated]]):
@@ -85,13 +84,11 @@ def render_shop(shop):
 
 
 def get_all_shops(storage, country):
-    print('upload shops')
 
     @token_updater
     def get_shops(storage, *args, **kwargs):
         limit, offset = kwargs['limit'], kwargs['offset']
         url = urllib.parse.urljoin(os.getenv('API_URL'), GET_ALL_SHOPS_ROUTE).format(country, offset, limit)
-        print(url)
         access_token = storage['access_token']
         return requests.get(url, headers={'Authorization': 'Bearer ' + access_token}, verify=False)
 

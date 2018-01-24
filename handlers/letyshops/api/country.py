@@ -4,10 +4,10 @@ from telegram.ext import Updater, CallbackQueryHandler, ConversationHandler, Mes
 from models import find_chanel_by_chat
 
 COUNTRIES = (
-    (u'Украина', 'set_country.ua'),
-    (u'Россия', 'set_country.ru'),
-    (u'Белоруссия', 'set_country.by'),
-    (u'Казахстан', 'set_country.kz'),
+    ('Украина', 'set_country.ua'),
+    ('Россия', 'set_country.ru'),
+    ('Белоруссия', 'set_country.by'),
+    ('Казахстан', 'set_country.kz'),
 )
 
 

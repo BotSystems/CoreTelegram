@@ -7,7 +7,7 @@ from telegram.ext import Updater
 
 from handlers.handler import init_handlers
 
-dotenv_path = join(dirname(__file__), '.env.settings')
+dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
 if __name__ == '__main__':

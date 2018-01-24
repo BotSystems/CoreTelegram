@@ -11,6 +11,7 @@ from handlers.letyshops.api.info.views import what_is_cashback, want_cashback
 from handlers.letyshops.api.shop.filters import TopShopsFilter
 from handlers.letyshops.api.shop.views import send_top_shops, send_shop_info, send_shops_in_category, find_shop_by_name
 from handlers.letyshops.views import send_welcome
+from handlers.letyshops.api.views import prev_page, next_page
 
 
 def init_handlers(dispatcher):
@@ -24,4 +25,7 @@ def init_handlers(dispatcher):
     dispatcher.add_handler(MessageHandler(WhatIsCashbackFilter(), what_is_cashback))
     dispatcher.add_handler(MessageHandler(WantCashbackFilter(), want_cashback))
     dispatcher.add_handler(MessageHandler(Filters.text, find_shop_by_name))
+
+    dispatcher.add_handler(CallbackQueryHandler(prev_page, False, False, 'pager.prev.*'))
+    dispatcher.add_handler(CallbackQueryHandler(next_page, False, False, 'pager.next.*'))
     return dispatcher
