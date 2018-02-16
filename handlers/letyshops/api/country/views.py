@@ -31,8 +31,8 @@ def set_country(bot, update, *args, **kwargs):
         chanel = find_chanel_by_chat(query.message.chat)
         chanel.set_country(selected_country)
 
-        message = u"Настройки готовы, давай же проверим ТОП магазинов {}.".format(
+        message = u"*Настройки готовы, давай же проверим ТОП магазинов {}.*".format(
             COUNTRIES_TRANSLATE.get(selected_country, DEFAULT_COUNTRY))
-        return bot.send_message(query.message.chat_id, message)
+        return bot.send_message(query.message.chat_id, message, parse_mode='Markdown')
     except Exception as ex:
         print('Exception: ', ex)
