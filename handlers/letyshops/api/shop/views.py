@@ -77,7 +77,7 @@ def send_shops_in_category(bot, update, *args, **kwargs):
 def find_shop_by_name(bot, update, *args, **kwargs):
     try:
         searching_shop_name = str.strip(update.message.text)
-        bot.send_message(chat_id=update.message.chat.id, text='Запрос принят, ищу...', reply_markup=build_keyboard())
+        bot.send_message(chat_id=update.message.chat.id, text='*Запрос принят, ищу...*', reply_markup=build_keyboard(), parse_mode = 'Markdown')
 
         shops_json = get_shop_by_name(TOKEN, shop_name=searching_shop_name)
 
@@ -90,7 +90,7 @@ def find_shop_by_name(bot, update, *args, **kwargs):
             markup = shop_details_keyboard(shop.url)
             return bot.send_message(update.message.chat.id, shop.render(), parse_mode='Markdown', reply_markup=markup)
 
-        return bot.send_message(update.message.chat.id, 'Нет ничего такого :(')
+        return bot.send_message(update.message.chat.id, '*Нет ничего такого :(*', parse_mode = 'Markdown')
 
     except Exception as ex:
         print('Exception: ', ex)
