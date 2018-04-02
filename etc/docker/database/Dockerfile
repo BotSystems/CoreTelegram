@@ -1,0 +1,1 @@
+FROM library/percona AS core_db

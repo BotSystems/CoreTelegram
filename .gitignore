@@ -39,3 +39,5 @@ handlers/letyshops/api/shop/__pycache__/models.cpython-36.pyc
 handlers/letyshops/api/shop/__pycache__/views.cpython-36.pyc
 handlers/paging/__pycache__/__init__.cpython-36.pyc
 handlers/paging/__pycache__/page.cpython-36.pyc
+.rebuild.sh
+.run.sh
