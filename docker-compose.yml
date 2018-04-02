@@ -5,8 +5,14 @@ services:
     build:
       context: ./etc/docker/python
       dockerfile: Dockerfile
+    tty: true
     command: /bin/bash -c python local.py
-  mysql:
+    volumes:
+      - .:/project
+    depends_on:
+      - db
+  db:
     build:
       context: ./etc/docker/database
       dockerfile: Dockerfile
+    env_file: ./etc/docker/database/.env
