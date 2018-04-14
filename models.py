@@ -3,7 +3,7 @@ import os
 from os.path import join, dirname
 
 from dotenv import load_dotenv
-from peewee import PostgresqlDatabase, Model, IntegerField, CharField, DateTimeField
+from peewee import Model, IntegerField, CharField, DateTimeField, MySQLDatabase
 
 if os.path.isfile('.env'):
     dotenv_path = join(dirname(__file__), '.env')
@@ -12,11 +12,11 @@ if os.path.isfile('.env'):
 DATABASE_CREDENTIALS = {
     'user': os.getenv('DB_USER'),
     'password': os.getenv('DB_PASSWORD'),
-    'host ': os.getenv('DB_HOST'),
-    'port ': os.getenv('DB_PORT')
+    'host': os.getenv('DB_HOST'),
+    'port': os.getenv('DB_PORT')
 }
 
-db = PostgresqlDatabase(os.getenv('DB_NAME'), **DATABASE_CREDENTIALS)
+db = MySQLDatabase(os.getenv('DB_NAME'), **DATABASE_CREDENTIALS)
 
 
 def find_chanel_by_chat(chat):

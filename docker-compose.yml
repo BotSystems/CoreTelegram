@@ -12,6 +12,7 @@ services:
     depends_on:
       - db
   db:
+    restart: always
     build:
       context: ./etc/docker/database
       dockerfile: Dockerfile
